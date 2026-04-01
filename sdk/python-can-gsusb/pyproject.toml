@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "python-can-gsusb"
+version = "0.1.0"
+description = "python-can interface for GSUSB multi-channel USB CAN FD devices"
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "python-can>=4.0.0",
+    "pyusb>=1.2.1",
+    "libusb-package>=1.0.26.3",
+]
+
+[project.entry-points."can.interface"]
+gsusb = "gsusb.bus:GsUsbBus"
+
+[project.urls]
+Homepage = "https://github.com/weifengdq/SlcanX"
