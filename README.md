@@ -1,5 +1,27 @@
 # gs_usb_x
 
+- [gs\_usb\_x](#gs_usb_x)
+  - [板子图片](#板子图片)
+  - [参考原理图](#参考原理图)
+  - [固件](#固件)
+    - [固件下载](#固件下载)
+    - [N32串口更新方式](#n32串口更新方式)
+    - [N32 Jlink 更新方式](#n32-jlink-更新方式)
+  - [Linux 测试](#linux-测试)
+    - [驱动编译](#驱动编译)
+    - [位时间设置](#位时间设置)
+    - [负载率查看](#负载率查看)
+    - [录包与查看](#录包与查看)
+    - [单路测试](#单路测试)
+    - [两两 echo](#两两-echo)
+    - [错误帧](#错误帧)
+    - [多个设备](#多个设备)
+  - [Win 上位机](#win-上位机)
+  - [Win 二次开发](#win-二次开发)
+  - [Github 链接](#github-链接)
+  - [购买与Q交流群](#购买与q交流群)
+
+
 ## 板子图片
 
 ![image-20260401132717336](README.assets/image-20260401132717336.png)
@@ -15,19 +37,17 @@
 - 排针引出 SWD 和 调试串口 (G:GND D:DIO C:CLK R:RXD T:TXD V:3V3)
 - RESET  和 BOOT 按键
 - 支持外部 8-36V 供电
-- 引出8个白色和8个红色LED
+- 引出8个白色和8个红色LED(本篇未使用)
 
 接口定义:
 
 ![image-20260401134106679](README.assets/image-20260401134106679.png)
 
-作为学习和评估, 本篇移植了基础的 GS_USB 协议, 并进行了测试, 有想移植其它协议的也可以使用这个板子, 原理图是开源的.
+本项目仅作为学习和评估, 移植了基础的 GS_USB 协议, 并进行了测试, 有想移植其它协议的也可以使用这个板子, 原理图是开源的.
 
 ## 参考原理图
 
-[USB8CANFD_N32H765](./sch/N32H765_USB8CANFD_SCH.pdf)
-
-[cherry-embedded/HSCanT-hardware: HSCanT is a USB to 4-channel CAN FD tool designed based on the HPM5321 chip.](https://github.com/cherry-embedded/HSCanT-hardware)
+[N32H765_USB8CANFD_SCH.pdf](https://github.com/weifengdq/gs_usb_x/blob/main/sch/N32H765_USB8CANFD_SCH.pdf)
 
 
 
@@ -35,9 +55,9 @@
 
 ### 固件下载
 
-[firmware_n32](./firmware/n32_gs_usb_v1.0.hex)
+[firmware_n32_gs_usb](https://github.com/weifengdq/gs_usb_x/tree/main/firmware)
 
-HSCanT 最新固件在QQ群 975779851 群文件下载.
+
 
 ### N32串口更新方式
 
@@ -233,21 +253,100 @@ cansend can7 123#
 
 如图
 
-###### ![image-20260401154336794](README.assets/image-20260401154336794.png)
+![image-20260401154336794](README.assets/image-20260401154336794.png)
+
+### 多个设备
+
+接3个设备, 对应24路CAN, 是按插入顺序自动编号的 can0~can23, 不用担心冲突问题
+
+![image-20260402115626347](README.assets/image-20260402115626347.png)
 
 
 
 ## Win 上位机
 
+[gs_usb_x exe](https://github.com/weifengdq/gs_usb_x/tree/main/host)
+
+首次连接可能需要用 Zadig 装一下 WinUSB 驱动.
+
 峰值性能比 Linux 下差一些, 收24000帧/s, 发13000帧/s, 收周期发送也不太精确, 不过用来快速测试还是不错的
+
+标志缩写 S:标准帧 E:扩展帧 R:远程帧 F:FDF B:BRS O:Overflow(可忽略)
 
 ![image-20260401170355942](README.assets/image-20260401170355942.png)
 
 ## Win 二次开发
 
+[gs_usb_x sdk](https://github.com/weifengdq/gs_usb_x/tree/main/sdk), 给出了 python c++ c# rust 的参考示例.
+
+以 python 为例, 对接到了 python-can:
+
+```bash
+cd python-can-gsusb
+pip install .
+# 安装 python-can 和 pyusb
+
+# 运行示例
+> python .\examples\02_periodic.py --gsusb-channel 7
+Opening auto Channel 7 @ 1000000bps...
+Starting periodic send every 1.0s
+...
+
+# 代码示例
+```
+
+简单的通道7 1M + 8M 发送示例:
+
+```python
+import can
+from gsusb import GsUsbBus
+bus = GsUsbBus(channel=0, gsusb_channel=7, bitrate=1000000, fd=True, data_bitrate=8000000)
+msg = can.Message(arbitration_id=0x123, data=[0x11, 0x22, 0x33, 0x44], is_extended_id=False, is_fd=True, bitrate_switch=True)
+bus.send(msg)
+bus.shutdown()
+```
+
+GsUsbBus 支持的参数
+
+```python
+class GsUsbBus(BusABC):
+    def __init__(
+        self,
+        channel: Optional[str] = "auto",
+        *,
+        gsusb_channel: int = 0,
+        bitrate: Optional[int] = None,
+        fd: bool = False,
+        data_bitrate: Optional[int] = None,
+        nominal_timing: Optional[object] = None,
+        data_timing: Optional[object] = None,
+        listen_only: bool = False,
+        termination_enabled: bool = True,
+        vendor_id: int = DEFAULT_VENDOR_ID,
+        product_id: int = DEFAULT_PRODUCT_ID,
+        interface_number: Optional[int] = None,
+        serial_number: Optional[str] = None,
+        **kwargs,
+    )
+```
 
 
 
+## Github 链接
+
+[weifengdq/gs_usb_x](https://github.com/weifengdq/gs_usb_x):
+
+- firmware: hex 固件
+- host: win 上位机
+- kernel: linux kernel module, scripts 里面是设置的示例脚本
+- sch: 原理图
+- sdk: win 二次开发参考
+
+## 购买与Q交流群
+
+【闲鱼】https://m.tb.cn/h.ijsGJPw?tk=P1EI523r95G HU926 「我在闲鱼发布了【国民技术 N32H765 USB 8路CANFD板子:】」 点击链接直接打开
+
+QQ 交流群: 1040239879
 
 
 
