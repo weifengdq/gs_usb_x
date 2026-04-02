@@ -18,6 +18,7 @@
     - [多个设备](#多个设备)
   - [Win 上位机](#win-上位机)
   - [Win 二次开发](#win-二次开发)
+  - [立创开源平台链接](#立创开源平台链接)
   - [Github 链接](#github-链接)
   - [购买与Q交流群](#购买与q交流群)
 
@@ -207,7 +208,7 @@ cangen can7 -g 0.095 -I 555 -L 64 -D i -b
 cangen can7 -g 0.002 -I 555 -L 1 -D i -b
 ```
 
-多路并不会比单路好太多, 峰值应该是 收28000帧/s, 发16000帧/s
+多路并不会比单路好, 合计峰值应该在 收28000帧/s, 发16000帧/s 附近
 
 ### 两两 echo
 
@@ -245,7 +246,7 @@ cangen can6 -g 0.3 -I 555 -L 1 -D i -b
 # 仅显示错误帧
 candump -tA -e -c -a any,0~0,#FFFFFFFF
 
-# 对 can7 短路接地去掉终端电阻等测试 
+# 对 can7 短路 接地 去掉终端电阻 等测试
 sudo ip link set can7 down
 sudo ip link set can7 up
 cansend can7 123#
@@ -332,6 +333,10 @@ class GsUsbBus(BusABC):
 
 
 
+## 立创开源平台链接
+
+[N32H765 USB8CANFD - 立创开源硬件平台](https://oshwhub.com/weifengdq/project_cjqotmtf)
+
 ## Github 链接
 
 [weifengdq/gs_usb_x](https://github.com/weifengdq/gs_usb_x):
@@ -347,48 +352,3 @@ class GsUsbBus(BusABC):
 【闲鱼】https://m.tb.cn/h.ijsGJPw?tk=P1EI523r95G HU926 「我在闲鱼发布了【国民技术 N32H765 USB 8路CANFD板子:】」 点击链接直接打开
 
 QQ 交流群: 1040239879
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
